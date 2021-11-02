@@ -2,3 +2,6 @@
 ./*.o
 ./*.d
 ./.vscode
+.vs
+circlefitsolver/x64
+circlefitsolver/.vs
