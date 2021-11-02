@@ -1,10 +1,9 @@
-#pragma once
 #ifndef CIRCLEFITSOLVER_H
 #define CIRCLEFITSOLVER_H
 
 #include <complex>
 #include <vector>
-#include <iostream>
+#include<iostream>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multimin.h>
 

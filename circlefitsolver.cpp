@@ -130,6 +130,5 @@ CircleFitSolver::~CircleFitSolver()
 {
     gsl_vector_free(m_start_point);
     gsl_vector_free(m_step_size);
-
     gsl_multimin_fminimizer_free(m_fminimizer);
 }

@@ -7,10 +7,10 @@
 #include "circlefitsolver.h"
 
 using namespace std;
-int main()
+int main(int argc, char* argv[])
 {
     char line[256];
-    ifstream myfile("./data1.txt");
+    ifstream myfile("C:\\samecos\\circlefit\\data1.txt");
     int count = 0;
     int max = 0;
     double center_x = 0.1, center_y = 1.0;
@@ -56,7 +56,7 @@ int main()
     cfs.circleFitL1(pr, iter, points, center_x, center_y, radius,
                     H11, H12, H13, H21, H22, H23, H31, H32, H33);
     clock_t end = clock();
-    cout << "花费了" << (double)(end - start) / CLOCKS_PER_SEC << "秒" << endl;
+    cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
     cout << iter << " " << center_x << " " << center_y << " " << radius << "   " << pr << endl;
 
     return 0;

@@ -1,0 +1,4 @@
+C:\samecos\circlefit\circlefitsolver\x64\Debug\circlefitsolver.vcxproj.CopyComplete
+C:\samecos\circlefit\circlefitsolver\x64\Debug\circlefitsolver.exe
+C:\samecos\circlefit\circlefitsolver\x64\Debug\gsld.dll
+C:\samecos\circlefit\circlefitsolver\x64\Debug\gslcblasd.dll
