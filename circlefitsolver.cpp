@@ -21,7 +21,7 @@ double CircleFitSolver::L1_distance(const gsl_vector *v, void *params)
     H23 = gsl_vector_get(v, 8);
     H31 = gsl_vector_get(v, 9);
     H32 = gsl_vector_get(v, 10);
-    H33 = gsl_vector_get(v, 11);
+    H33 = 1.0;
     double cal_a = 0.0, cal_b = 0.0;
     cal_a = (H11 * a + H12 * b + H13) / (H31 * a + H32 * b + H33);
     cal_b = (H21 * a + H22 * b + H23) / (H31 * a + H32 * b + H33);
@@ -54,7 +54,7 @@ inline void CircleFitSolver::setStartPoint(double center_x, double center_y, dou
     gsl_vector_set(m_start_point, 8, H23);
     gsl_vector_set(m_start_point, 9, H31);
     gsl_vector_set(m_start_point, 10, H32);
-    gsl_vector_set(m_start_point, 11, H33);
+    //gsl_vector_set(m_start_point, 11, H33);
 }
 
 bool CircleFitSolver::circleFitL1(double &pr, int &iter, const vector<POINT> &points, double &center_x, double &center_y, double &radius, double &H11, double &H12, double &H13, double &H21, double &H22, double &H23, double &H31, double &H32, double &H33)
@@ -74,7 +74,7 @@ bool CircleFitSolver::circleFitL1(double &pr, int &iter, const vector<POINT> &po
     gsl_vector_set(m_step_size, 8, 0.01);
     gsl_vector_set(m_step_size, 9, 0.01);
     gsl_vector_set(m_step_size, 10, 0.01);
-    gsl_vector_set(m_step_size, 11, 0.01);
+    //gsl_vector_set(m_step_size, 11, 0.01);
 
     gsl_multimin_fminimizer_set(m_fminimizer, &m_function, m_start_point, m_step_size);
 
@@ -89,7 +89,7 @@ bool CircleFitSolver::circleFitL1(double &pr, int &iter, const vector<POINT> &po
             break;
         }
         double size = gsl_multimin_fminimizer_size(m_fminimizer);
-        status = gsl_multimin_test_size(size, 0.0001);
+        status = gsl_multimin_test_size(size, 0.005);
         pr = size;
     } while (status == GSL_CONTINUE && iter < m_max_iter);
 
@@ -106,7 +106,7 @@ bool CircleFitSolver::circleFitL1(double &pr, int &iter, const vector<POINT> &po
     H23 = gsl_vector_get(out, 8);
     H31 = gsl_vector_get(out, 9);
     H32 = gsl_vector_get(out, 10);
-    H33 = gsl_vector_get(out, 11);
+    //H33 = gsl_vector_get(out, 11);
     std::cout << H11 << " " << H12 << " " << H13 << endl;
     std::cout << H21 << " " << H22 << " " << H23 << endl;
     std::cout << H31 << " " << H32 << " " << H33 << endl;
@@ -117,7 +117,7 @@ CircleFitSolver::CircleFitSolver()
 {
     m_max_iter = 100; // 默认最大迭代 100 步
 
-    m_function.n = 12;
+    m_function.n = 11;
     m_function.f = L1_distance;
 
     m_start_point = gsl_vector_alloc(m_function.n);

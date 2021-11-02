@@ -1,7 +1,8 @@
 ./run
 ./*.o
 ./*.d
-./.vscode
+.vscode/
 .vs
 circlefitsolver/x64
 circlefitsolver/.vs
+.vscode/launch.json
