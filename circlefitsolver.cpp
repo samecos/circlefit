@@ -63,18 +63,18 @@ bool CircleFitSolver::circleFitL1(double &pr, int &iter, const vector<POINT> &po
 
     setStartPoint(center_x, center_y, radius, H11, H12, H13, H21, H22, H23, H31, H32, H33);
     /* 经验值，初始步长设置为半径的十分之一 */
-    gsl_vector_set(m_step_size, 0, radius / 10.0);
-    gsl_vector_set(m_step_size, 1, radius / 10.0);
-    gsl_vector_set(m_step_size, 2, radius / 10.0);
-    gsl_vector_set(m_step_size, 3, 0.01);
-    gsl_vector_set(m_step_size, 4, 0.01);
-    gsl_vector_set(m_step_size, 5, 0.01);
-    gsl_vector_set(m_step_size, 6, 0.01);
-    gsl_vector_set(m_step_size, 7, 0.01);
-    gsl_vector_set(m_step_size, 8, 0.01);
-    gsl_vector_set(m_step_size, 9, 0.01);
-    gsl_vector_set(m_step_size, 10, 0.01);
-    //gsl_vector_set(m_step_size, 11, 0.01);
+    gsl_vector_set(m_step_size, 0, 0.001);
+    gsl_vector_set(m_step_size, 1, 0.001);
+    gsl_vector_set(m_step_size, 2, 0.001);
+    gsl_vector_set(m_step_size, 3, 0.001);
+    gsl_vector_set(m_step_size, 4, 0.001);
+    gsl_vector_set(m_step_size, 5, 0.001);
+    gsl_vector_set(m_step_size, 6, 0.001);
+    gsl_vector_set(m_step_size, 7, 0.001);
+    gsl_vector_set(m_step_size, 8, 0.001);
+    gsl_vector_set(m_step_size, 9, 0.001);
+    gsl_vector_set(m_step_size, 10, 0.001);
+    //gsl_vector_set(m_step_size, 11, 0.001);
 
     gsl_multimin_fminimizer_set(m_fminimizer, &m_function, m_start_point, m_step_size);
 
@@ -89,7 +89,7 @@ bool CircleFitSolver::circleFitL1(double &pr, int &iter, const vector<POINT> &po
             break;
         }
         double size = gsl_multimin_fminimizer_size(m_fminimizer);
-        status = gsl_multimin_test_size(size, 0.01);
+        status = gsl_multimin_test_size(size, 0.0001);
         pr = size;
     } while (status == GSL_CONTINUE && iter < m_max_iter);
 

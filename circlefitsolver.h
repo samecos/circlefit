@@ -11,6 +11,15 @@ using namespace std;
 
 typedef complex<double> POINT;
 
+struct Cal_Data
+{
+    int size;
+    double radius;
+    double x;
+    double y;
+    std::vector<POINT> points;
+};
+
 class CircleFitSolver
 {
 public:
@@ -28,6 +37,7 @@ public:
      */
     bool circleFitL1(double &pr, int &iter, const vector<POINT> &points, double &center_x, double &center_y, double &radius,
                      double &H11, double &H12, double &H13, double &H21, double &H22, double &H23, double &H31, double &H32, double &H33);
+    //bool circleFitL_AllPoints(double &pr, int &iter, vector<Cal_Data> &all_data, double &H11, double &H12, double &H13, double &H21, double &H22, double &H23, double &H31, double &H32, double &H33);
 
 private:
     gsl_multimin_function m_function;

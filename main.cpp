@@ -8,15 +8,6 @@
 
 using namespace std;
 
-struct Cal_Data
-{
-    int size;
-    double radius;
-    double x;
-    double y;
-    std::vector<POINT> points;
-};
-
 void read_data(const char *path, std::vector<Cal_Data> &all_data)
 {
     char line[512];
