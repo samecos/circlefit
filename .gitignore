@@ -6,3 +6,16 @@
 circlefitsolver/x64
 circlefitsolver/.vs
 .vscode/launch.json
+.DS_Store
+run
+.gitignore
+circlefitsolver.o
+main.d
+circlefitsolver.d
+main.o
+a.out
+a.out.dSYM
+run.d
+run.dSYM
+main
+main.dSYM
