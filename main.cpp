@@ -27,43 +27,40 @@ void read_data(const char *path, std::vector<Cal_Data> &all_data)
     myfile.getline(line, 512);
     int max_cp_num = 0;
     string temp;
-    istringstream iss0(line);
-    iss0 >> temp >> max_cp_num;
-
+    istringstream iss(line);
+    iss >> temp >> max_cp_num;
     myfile.getline(line, 512);
     while (myfile.good())
     {
-
         for (int i = 0; i < max_cp_num; i++)
         {
             double center_x, center_y, radius;
             myfile.getline(line, 512);
-            istringstream iss(line);
+            iss.str(line);
             iss >> temp >> temp >> center_x >> center_y >> temp >> temp >> temp >> radius;
             vector<POINT> p = vector<POINT>();
             Cal_Data data = {0, radius / 2.0, center_x, center_y, p};
             all_data.push_back(data);
         }
         myfile.getline(line, 512);
-
         for (int i = 0; i < max_cp_num; i++)
         {
             myfile.getline(line, 512);
             myfile.getline(line, 512);
             myfile.getline(line, 512);
-            istringstream iss1(line);
-            iss1 >> all_data[i].size;
-
+            iss.str(line);
+            iss >> all_data[i].size;
             for (int j = 0; j < all_data[i].size; j++)
             {
                 myfile.getline(line, 512);
-                istringstream iss(line);
+                iss.str(line);
                 double x1, y1;
                 iss >> x1 >> y1;
                 POINT point1 = {x1, y1};
                 all_data[i].points.push_back(point1);
             }
         }
+        break;
     }
 }
 

@@ -25,7 +25,7 @@ double CircleFitSolver::L1_distance(const gsl_vector *v, void *params)
     double cal_a = 0.0, cal_b = 0.0;
     cal_a = (H11 * a + H12 * b + H13) / (H31 * a + H32 * b + H33);
     cal_b = (H21 * a + H22 * b + H23) / (H31 * a + H32 * b + H33);
-    double sum = 0;
+    double sum = 0.0;
     for (int i = 0; i < N; i++)
     {
         const POINT p = vect->at(i);
@@ -36,7 +36,7 @@ double CircleFitSolver::L1_distance(const gsl_vector *v, void *params)
         double xi = cal_x - cal_a;
         double yi = cal_y - cal_b;
         double dist = sqrt(xi * xi + yi * yi) - r;
-        sum += fabs(dist);
+        sum += (dist * dist);
     }
     return sum;
 }
@@ -89,7 +89,7 @@ bool CircleFitSolver::circleFitL1(double &pr, int &iter, const vector<POINT> &po
             break;
         }
         double size = gsl_multimin_fminimizer_size(m_fminimizer);
-        status = gsl_multimin_test_size(size, 0.005);
+        status = gsl_multimin_test_size(size, 0.01);
         pr = size;
     } while (status == GSL_CONTINUE && iter < m_max_iter);
 
