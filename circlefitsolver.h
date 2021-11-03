@@ -13,6 +13,7 @@ typedef complex<double> POINT;
 
 struct Cal_Data
 {
+public:
     int size;
     double radius;
     double x;
