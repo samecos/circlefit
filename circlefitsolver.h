@@ -4,6 +4,7 @@
 #include <complex>
 #include <vector>
 #include <iostream>
+#include <string>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multimin.h>
 
@@ -18,6 +19,9 @@ public:
     double radius;
     double x;
     double y;
+    string X;
+    string Y;
+    string Z;
     std::vector<POINT> points;
 };
 

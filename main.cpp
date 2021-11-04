@@ -30,9 +30,10 @@ void read_data(const char *path, std::vector<Cal_Data> &all_data)
             myfile.getline(line, 512);
             iss.clear();
             iss.str(line);
-            iss >> temp >> temp >> center_x >> center_y >> temp >> temp >> temp >> radius;
+            string X, Y, Z;
+            iss >> temp >> temp >> center_x >> center_y >> X >> Y >> Z >> radius;
             vector<POINT> p = vector<POINT>();
-            Cal_Data data = {0, radius / 2.0, center_x, center_y, p};
+            Cal_Data data = {0, radius / 2.0, center_x, center_y, X, Y, Z, p};
             all_data.push_back(data);
         }
         myfile.getline(line, 512);
@@ -42,7 +43,7 @@ void read_data(const char *path, std::vector<Cal_Data> &all_data)
             myfile.getline(line, 512);
             myfile.getline(line, 512);
             iss.clear();
-            iss.str(line);            
+            iss.str(line);
             iss >> all_data[i].size;
             for (int j = 0; j < all_data[i].size; j++)
             {
@@ -60,16 +61,16 @@ void read_data(const char *path, std::vector<Cal_Data> &all_data)
 }
 
 int main(int argc, char *argv[])
-{   
-    std::string paths = "../data/";
-    for (const auto& entry : fs::directory_iterator(paths))
-    {   
+{
+    std::string paths = "./data/";
+    for (const auto &entry : fs::directory_iterator(paths))
+    {
         std::vector<Cal_Data> all_data = std::vector<Cal_Data>();
         read_data(entry.path().string().c_str(), all_data);
         clock_t start = clock();
         for (int i = 0; i < all_data.size(); i++)
         {
-            cout << "                                              " << endl;
+            //cout << "                                              " << endl;
             CircleFitSolver cfs = CircleFitSolver();
             cfs.setMaxIter(2000);
             int iter = 0;
@@ -79,10 +80,12 @@ int main(int argc, char *argv[])
             double pr = 0.0;
 
             cfs.circleFitL1(pr, iter, all_data[i].points, all_data[i].x, all_data[i].y, all_data[i].radius,
-                H11, H12, H13, H21, H22, H23, H31, H32, H33);
+                            H11, H12, H13, H21, H22, H23, H31, H32, H33);
 
-            cout << iter << " " << all_data[i].x << " " << all_data[i].y << " " << all_data[i].radius << "   " << pr << endl;
-            cout << "                                              " << endl;
+            cout << all_data[i].X << "\t" << all_data[i].Y << "\t" << all_data[i].Z << "\t"
+                 << all_data[i].x << "\t" << all_data[i].y << "\t"
+                 << iter << "\t" << all_data[i].radius << "\t" << pr << endl;
+            //cout << "                                              " << endl;
         }
         clock_t end = clock();
         cout << "----------------------------------------------" << endl;

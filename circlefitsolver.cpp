@@ -107,9 +107,9 @@ bool CircleFitSolver::circleFitL1(double &pr, int &iter, const vector<POINT> &po
     H31 = gsl_vector_get(out, 9);
     H32 = gsl_vector_get(out, 10);
     //H33 = gsl_vector_get(out, 11);
-    std::cout << H11 << " " << H12 << " " << H13 << endl;
-    std::cout << H21 << " " << H22 << " " << H23 << endl;
-    std::cout << H31 << " " << H32 << " " << H33 << endl;
+    // std::cout << H11 << " " << H12 << " " << H13 << endl;
+    // std::cout << H21 << " " << H22 << " " << H23 << endl;
+    // std::cout << H31 << " " << H32 << " " << H33 << endl;
     return true;
 }
 
