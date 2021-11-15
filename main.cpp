@@ -9,8 +9,10 @@
 
 using namespace std;
 namespace fs = std::filesystem;
+
 void read_data(const char *path, std::vector<Cal_Data> &all_data)
 {
+
     char line[512];
     ifstream myfile(path);
     int count = 0;
@@ -73,6 +75,7 @@ int main(int argc, char *argv[])
             //cout << "                                              " << endl;
             CircleFitSolver cfs = CircleFitSolver();
             cfs.setMaxIter(2000);
+            cfs.setRadius(5);
             int iter = 0;
             double H11 = 1.0, H12 = 0.0, H13 = 0.0;
             double H21 = 0.0, H22 = 1.0, H23 = 0.0;

@@ -5,76 +5,72 @@ using namespace std;
 
 double CircleFitSolver::L1_distance(const gsl_vector *v, void *params)
 {
-    vector<POINT> *vect = (vector<POINT> *)params;
+    vector<Point3d> *vect = (vector<Point3d> *)params;
     int N = vect->size();
+    TransFormat trs = TransFormat(cameraParams);
+    double camera_center_x = gsl_vector_get(v, 0);
+    double camera_center_y = gsl_vector_get(v, 1);
+    double planeVector[3] = {0, 0, 1};
+    double planePoint[3] = {1, 1, 0};
+    double *pw = new double[3];
+    Point3d center_cal = trs.c2w(cloudPoints.Img);
+    Point3d vector_temp = (center_cal - camera_center);
+    double lineVector[3] = {vector_temp.x, vector_temp.y, vector_temp.z};
+    double linePoint[3] = {center_cal.x, center_cal.y, center_cal.z};
+    pw = trs.CalPlaneLineIntersectPoint(planeVector, planePoint, lineVector, linePoint);
 
-    double a, b, r;
-    double H11, H12, H13, H21, H22, H23, H31, H32, H33;
-    a = gsl_vector_get(v, 0);
-    b = gsl_vector_get(v, 1);
-    r = gsl_vector_get(v, 2);
-    H11 = gsl_vector_get(v, 3);
-    H12 = gsl_vector_get(v, 4);
-    H13 = gsl_vector_get(v, 5);
-    H21 = gsl_vector_get(v, 6);
-    H22 = gsl_vector_get(v, 7);
-    H23 = gsl_vector_get(v, 8);
-    H31 = gsl_vector_get(v, 9);
-    H32 = gsl_vector_get(v, 10);
-    H33 = 1.0;
-    double cal_a = 0.0, cal_b = 0.0;
-    cal_a = (H11 * a + H12 * b + H13) / (H31 * a + H32 * b + H33);
-    cal_b = (H21 * a + H22 * b + H23) / (H31 * a + H32 * b + H33);
     double sum = 0.0;
     for (int i = 0; i < N; i++)
     {
-        const POINT p = vect->at(i);
-        double x = p.real();
-        double y = p.imag();
-        const double cal_x = (H11 * x + H12 * y + H13) / (H31 * x + H32 * y + H33);
-        const double cal_y = (H21 * x + H22 * y + H23) / (H31 * x + H32 * y + H33);
-        double xi = cal_x - cal_a;
-        double yi = cal_y - cal_b;
-        double dist = sqrt(xi * xi + yi * yi) - r;
-        sum += (dist * dist);
+
+        sum += abs(dist);
     }
     return sum;
 }
 
-inline void CircleFitSolver::setStartPoint(double center_x, double center_y, double radius, double &H11, double &H12, double &H13, double &H21, double &H22, double &H23, double &H31, double &H32, double &H33)
+inline void CircleFitSolver::setStepMove()
+{
+    gsl_vector_set(m_step_size, 0, 0.001);
+    gsl_vector_set(m_step_size, 1, 0.001);
+}
+
+inline void CircleFitSolver::setStartPoint(double center_x, double center_y)
 {
     gsl_vector_set(m_start_point, 0, center_x);
     gsl_vector_set(m_start_point, 1, center_y);
-    gsl_vector_set(m_start_point, 2, radius);
-    gsl_vector_set(m_start_point, 3, H11);
-    gsl_vector_set(m_start_point, 4, H12);
-    gsl_vector_set(m_start_point, 5, H13);
-    gsl_vector_set(m_start_point, 6, H21);
-    gsl_vector_set(m_start_point, 7, H22);
-    gsl_vector_set(m_start_point, 8, H23);
-    gsl_vector_set(m_start_point, 9, H31);
-    gsl_vector_set(m_start_point, 10, H32);
-    //gsl_vector_set(m_start_point, 11, H33);
 }
 
-bool CircleFitSolver::circleFitL1(double &pr, int &iter, const vector<POINT> &points, double &center_x, double &center_y, double &radius, double &H11, double &H12, double &H13, double &H21, double &H22, double &H23, double &H31, double &H32, double &H33)
+bool CircleFitSolver::circleFitL1(double &pr, int &iter, CloudPoints &cloudPoints, CameraParams &cameraParams)
 {
-    m_function.params = (void *)&points;
+    TransFormat trs = TransFormat(cameraParams);
+    vector<Point3d> circle_points;
+    //相机像心的坐标
+    Point3d camera_center = trs.c2w_zero();
+    double planeVector[3] = {0, 0, 1};
+    double planePoint[3] = {1, 1, 0};
 
-    setStartPoint(center_x, center_y, radius, H11, H12, H13, H21, H22, H23, H31, H32, H33);
-    /* 经验值，初始步长设置为半径的十分之一 */
-    gsl_vector_set(m_step_size, 0, 0.001);
-    gsl_vector_set(m_step_size, 1, 0.001);
-    gsl_vector_set(m_step_size, 2, 0.001);
-    gsl_vector_set(m_step_size, 3, 0.001);
-    gsl_vector_set(m_step_size, 4, 0.001);
-    gsl_vector_set(m_step_size, 5, 0.001);
-    gsl_vector_set(m_step_size, 6, 0.001);
-    gsl_vector_set(m_step_size, 7, 0.001);
-    gsl_vector_set(m_step_size, 8, 0.001);
-    gsl_vector_set(m_step_size, 9, 0.001);
-    gsl_vector_set(m_step_size, 10, 0.001);
-    //gsl_vector_set(m_step_size, 11, 0.001);
+    //首先将像平面的圆周点变换到世界坐标系
+    for (auto cp : cloudPoints.points)
+    {
+        double *pw = new double[3];
+        Point3d pt = trs.c2w(cp);
+        Point3d temp = (pt - camera_center);
+        //然后计算一下像点和标定板平面的交点
+        double lineVector[3] = {temp.x, temp.y, temp.z};
+        double linePoint[3] = {pt.x, pt.y, pt.z};
+
+        pw = trs.CalPlaneLineIntersectPoint(planeVector, planePoint, lineVector, linePoint);
+        pt.x = pw[0];
+        pt.y = pw[1];
+        pt.z = pw[2];
+        circle_points.push_back(pt);
+    }
+
+    //
+    m_function.params = (void *)&circle_points;
+
+    setStartPoint(cloudPoints.Img.x, cloudPoints.Img.y);
+    setStepMove();
 
     gsl_multimin_fminimizer_set(m_fminimizer, &m_function, m_start_point, m_step_size);
 
@@ -95,29 +91,17 @@ bool CircleFitSolver::circleFitL1(double &pr, int &iter, const vector<POINT> &po
 
     gsl_vector *out = gsl_multimin_fminimizer_x(m_fminimizer);
 
-    center_x = gsl_vector_get(out, 0);
-    center_y = gsl_vector_get(out, 1);
-    radius = gsl_vector_get(out, 2);
-    H11 = gsl_vector_get(out, 3);
-    H12 = gsl_vector_get(out, 4);
-    H13 = gsl_vector_get(out, 5);
-    H21 = gsl_vector_get(out, 6);
-    H22 = gsl_vector_get(out, 7);
-    H23 = gsl_vector_get(out, 8);
-    H31 = gsl_vector_get(out, 9);
-    H32 = gsl_vector_get(out, 10);
-    //H33 = gsl_vector_get(out, 11);
-    // std::cout << H11 << " " << H12 << " " << H13 << endl;
-    // std::cout << H21 << " " << H22 << " " << H23 << endl;
-    // std::cout << H31 << " " << H32 << " " << H33 << endl;
+    cloudPoints.Img.x = gsl_vector_get(out, 0);
+    cloudPoints.Img.y = gsl_vector_get(out, 1);
+
     return true;
 }
 
 CircleFitSolver::CircleFitSolver()
 {
-    m_max_iter = 100; // 默认最大迭代 100 步
+    m_max_iter = 2000; // 默认最大迭代 100 步
 
-    m_function.n = 11;
+    m_function.n = 2;
     m_function.f = L1_distance;
 
     m_start_point = gsl_vector_alloc(m_function.n);

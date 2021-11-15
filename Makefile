@@ -5,29 +5,30 @@ default:
 	$(MAKE) CC=gcc CXX=g++ \
 		CXXFLAGS='$(CXXFLAGS) -D_AFXEXT -DGLOG_NO_ABBREVIATED_SEVERITIES -Wall -Wextra -Wno-deprecated-copy -pipe -O3 -g -ffast-math -flto -std=c++17 -DNDEBUG' \
 		LDFLAGS='$(LDFLAGS) -flto -g' \
-		run
+		main
 
 debug:
 	@echo "Detected OS: ${THE_OS}"
 	$(MAKE) CC=gcc CXX=g++ \
 		CXXFLAGS='$(CXXFLAGS) -D_AFXEXT -DGLOG_NO_ABBREVIATED_SEVERITIES -Wall -Wextra -Wno-deprecated-copy -pipe -Og -g -std=c++17' \
 		LDFLAGS='$(LDFLAGS) -g' \
-		run
+		main
 
 clang:
 	@echo "Detected OS: ${THE_OS}"
 	$(MAKE) CC=clang CXX=clang++ \
 		CXXFLAGS='$(CXXFLAGS) -D_AFXEXT -DGLOG_NO_ABBREVIATED_SEVERITIES -Wall -Wextra -Wno-deprecated-copy -O3 -ffast-math -flto -std=c++17 -DNDEBUG' \
 		LDFLAGS='$(LDFLAGS) -flto -fuse-linker-plugin' \
-		run
+		main
 
-DYNAMIC_LIBS = -lgsl -lgslcblas
+DYNAMIC_LIBS = -lgsl -lgslcblas 
 CXXFLAGS += -I/opt/homebrew/include
 CXXFLAGS += -I./
+CXXFLAGS += -I/usr/local/include/opencv4
 LDFLAGS += -L/opt/homebrew/lib
 CPPFLAGS += -MD -MP
-
-sources = circlefitsolver.cpp main.cpp
+LIBS = `pkg-config opencv --cflags --libs`
+sources = transform.cpp circlefitsolver.cpp main.cpp
 
 objects = $(sources:.cpp=.o)
 deps = $(sources:%.cpp=%.d)
@@ -36,10 +37,10 @@ deps = $(sources:%.cpp=%.d)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
 
-run: $(objects)
+main: $(objects)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS) $(DYNAMIC_LIBS)
 
 clean:
-	-$(RM) run $(objects) $(deps)
+	-$(RM) main $(objects) $(deps)
 
 .PHONY: clean default debug clang
