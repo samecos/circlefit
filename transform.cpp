@@ -61,35 +61,30 @@ Point3d TransFormat::c2w_zero()
 /// <param name="lineVector">直线的方向向量，长度为3</param>
 /// <param name="linePoint">直线经过的一点坐标，长度为3</param>
 /// <returns>返回交点坐标，长度为3</returns>
-double *
-TransFormat::CalPlaneLineIntersectPoint(double planeVector[3], double planePoint[3], double lineVector[3], double linePoint[3])
+Point3d TransFormat::CalPlaneLineIntersectPoint(Point3d planeVector, Point3d planePoint, Point3d lineVector, Point3d linePoint)
 {
-    double *returnResult = new double[3];
+    Point3d returnResult = Point3d(0.0, 0.0, 0.0);
     double vp1, vp2, vp3, n1, n2, n3, v1, v2, v3, m1, m2, m3, t, vpt;
-    vp1 = planeVector[0];
-    vp2 = planeVector[1];
-    vp3 = planeVector[2];
-    n1 = planePoint[0];
-    n2 = planePoint[1];
-    n3 = planePoint[2];
-    v1 = lineVector[0];
-    v2 = lineVector[1];
-    v3 = lineVector[2];
-    m1 = linePoint[0];
-    m2 = linePoint[1];
-    m3 = linePoint[2];
+    vp1 = planeVector.x;
+    vp2 = planeVector.y;
+    vp3 = planeVector.z;
+    n1 = planePoint.x;
+    n2 = planePoint.y;
+    n3 = planePoint.z;
+    v1 = lineVector.x;
+    v2 = lineVector.y;
+    v3 = lineVector.z;
+    m1 = linePoint.x;
+    m2 = linePoint.y;
+    m3 = linePoint.z;
     vpt = v1 * vp1 + v2 * vp2 + v3 * vp3;
     //首先判断直线是否与平面平行
-    if (vpt == 0)
-    {
-        memset(returnResult, 0.0, sizeof(returnResult));
-    }
-    else
+    if (vpt > 1e-6 || vpt < -1e-6)
     {
         t = ((n1 - m1) * vp1 + (n2 - m2) * vp2 + (n3 - m3) * vp3) / vpt;
-        returnResult[0] = m1 + v1 * t;
-        returnResult[1] = m2 + v2 * t;
-        returnResult[2] = m3 + v3 * t;
+        returnResult.x = m1 + v1 * t;
+        returnResult.y = m2 + v2 * t;
+        returnResult.z = m3 + v3 * t;
     }
     return returnResult;
 }

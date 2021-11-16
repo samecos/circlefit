@@ -77,13 +77,9 @@ int main(int argc, char *argv[])
             cfs.setMaxIter(2000);
             cfs.setRadius(5);
             int iter = 0;
-            double H11 = 1.0, H12 = 0.0, H13 = 0.0;
-            double H21 = 0.0, H22 = 1.0, H23 = 0.0;
-            double H31 = 0.0, H32 = 0.0, H33 = 1.0;
             double pr = 0.0;
 
-            cfs.circleFitL1(pr, iter, all_data[i].points, all_data[i].x, all_data[i].y, all_data[i].radius,
-                            H11, H12, H13, H21, H22, H23, H31, H32, H33);
+            cfs.circleFitL1(pr, iter, all_data[i]);
 
             cout << all_data[i].X << "\t" << all_data[i].Y << "\t" << all_data[i].Z << "\t"
                  << all_data[i].x << "\t" << all_data[i].y << "\t"

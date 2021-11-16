@@ -5,25 +5,29 @@ using namespace std;
 
 double CircleFitSolver::L1_distance(const gsl_vector *v, void *params)
 {
-    vector<Point3d> *vect = (vector<Point3d> *)params;
-    int N = vect->size();
-    TransFormat trs = TransFormat(cameraParams);
+    std::tuple<CloudPoints, vector<Point3d>, CameraParams> *vetc = (std::tuple<CloudPoints, vector<Point3d>, CameraParams> *)params;
+    auto [cps, circle_points, cp] = *vetc;
+    int N = cps.points.size();
+    TransFormat trs = TransFormat(cp);
+
+    //相机像心的坐标
+    Point3d camera_center = trs.c2w_zero();
+    Point3d planeVector = {0, 0, 1};
+    Point3d planePoint = {1, 1, 0};
     double camera_center_x = gsl_vector_get(v, 0);
     double camera_center_y = gsl_vector_get(v, 1);
-    double planeVector[3] = {0, 0, 1};
-    double planePoint[3] = {1, 1, 0};
-    double *pw = new double[3];
-    Point3d center_cal = trs.c2w(cloudPoints.Img);
-    Point3d vector_temp = (center_cal - camera_center);
-    double lineVector[3] = {vector_temp.x, vector_temp.y, vector_temp.z};
-    double linePoint[3] = {center_cal.x, center_cal.y, center_cal.z};
-    pw = trs.CalPlaneLineIntersectPoint(planeVector, planePoint, lineVector, linePoint);
+    Point2d cc = {camera_center_x, camera_center_y};
+    Point3d center_cal = trs.c2w(cc);
+
+    Point3d lineVector = (center_cal - camera_center);
+    Point3d point_circle_center = trs.CalPlaneLineIntersectPoint(planeVector, planePoint, lineVector, center_cal);
 
     double sum = 0.0;
     for (int i = 0; i < N; i++)
     {
-
-        sum += abs(dist);
+        auto dist = circle_points[i] - point_circle_center;
+        double pre = sqrt(dist.x * dist.x + dist.y * dist.y + dist.z * dist.z) - cps.radius;
+        sum += abs(pre);
     }
     return sum;
 }
@@ -40,34 +44,26 @@ inline void CircleFitSolver::setStartPoint(double center_x, double center_y)
     gsl_vector_set(m_start_point, 1, center_y);
 }
 
-bool CircleFitSolver::circleFitL1(double &pr, int &iter, CloudPoints &cloudPoints, CameraParams &cameraParams)
+bool CircleFitSolver::circleFitL1(double &pr, int &iter, CloudPoints &cloudPoints)
 {
-    TransFormat trs = TransFormat(cameraParams);
+    TransFormat trs = TransFormat(m_cp);
+
     vector<Point3d> circle_points;
     //相机像心的坐标
     Point3d camera_center = trs.c2w_zero();
-    double planeVector[3] = {0, 0, 1};
-    double planePoint[3] = {1, 1, 0};
+    Point3d planeVector = {0, 0, 1};
+    Point3d planePoint = {1, 1, 0};
 
     //首先将像平面的圆周点变换到世界坐标系
-    for (auto cp : cloudPoints.points)
+    for (auto cpt : cloudPoints.points)
     {
-        double *pw = new double[3];
-        Point3d pt = trs.c2w(cp);
-        Point3d temp = (pt - camera_center);
-        //然后计算一下像点和标定板平面的交点
-        double lineVector[3] = {temp.x, temp.y, temp.z};
-        double linePoint[3] = {pt.x, pt.y, pt.z};
-
-        pw = trs.CalPlaneLineIntersectPoint(planeVector, planePoint, lineVector, linePoint);
-        pt.x = pw[0];
-        pt.y = pw[1];
-        pt.z = pw[2];
-        circle_points.push_back(pt);
+        Point3d linePoint = trs.c2w(cpt);
+        Point3d lineVector = (linePoint - camera_center);
+        circle_points.push_back(trs.CalPlaneLineIntersectPoint(planeVector, planePoint, lineVector, linePoint));
     }
 
     //
-    m_function.params = (void *)&circle_points;
+    m_function.params = (void *)&std::make_tuple(cloudPoints, circle_points, m_cp);
 
     setStartPoint(cloudPoints.Img.x, cloudPoints.Img.y);
     setStepMove();
@@ -97,7 +93,7 @@ bool CircleFitSolver::circleFitL1(double &pr, int &iter, CloudPoints &cloudPoint
     return true;
 }
 
-CircleFitSolver::CircleFitSolver()
+CircleFitSolver::CircleFitSolver(CameraParams &cp) : m_cp(cp)
 {
     m_max_iter = 2000; // 默认最大迭代 100 步
 

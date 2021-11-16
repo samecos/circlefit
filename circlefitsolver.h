@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <tuple>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multimin.h>
 #include "transform.h"
@@ -26,7 +27,7 @@ public:
 class CircleFitSolver
 {
 public:
-    CircleFitSolver();
+    CircleFitSolver(CameraParams &cp);
     ~CircleFitSolver();
     void setMaxIter(int iter) { m_max_iter = iter; }
     void setRadius(double radius) { m_radius = radius; }
@@ -36,12 +37,12 @@ public:
      * @param CameraParams 相机的参数
      * @return true 表示拟合成功，否则拟合失败。
      */
-    bool circleFitL1(double &pr, int &iter, CloudPoints &cloudPoints, CameraParams &cameraParams);
+    bool circleFitL1(double &pr, int &iter, CloudPoints &cloudPoints);
 
 private:
     gsl_multimin_function m_function;
     gsl_multimin_fminimizer *m_fminimizer;
-
+    CameraParams m_cp;         //相机参数
     int m_max_iter;            // 迭代算法的最大迭代次数
     double m_radius;           //圆的半径
     gsl_vector *m_start_point; // 迭代算法的初始值

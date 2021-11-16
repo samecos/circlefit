@@ -40,7 +40,7 @@ public:
     Point2d w2c(Point3d w_point);
     Point3d c2w(Point2d c_point);
     Point3d c2w_zero();
-    double *CalPlaneLineIntersectPoint(double planeVector[3], double planePoint[3], double lineVector[3], double linePoint[3]);
+    Point3d CalPlaneLineIntersectPoint(Point3d planeVector, Point3d planePoint, Point3d lineVector, Point3d linePoint);
 
     CameraParams get(); //获取参数
     void set(CameraParams &cp);
